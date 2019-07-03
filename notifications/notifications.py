@@ -59,7 +59,6 @@ class TelegramChannel(Channel):
                     else:
                         parts = command.split(" ")
                         if parts[0] in self.command_list:
-                            # TODO: check length (no subcommand)
                             if len(parts) < 2:
                                 parts.append("*")
                             if parts[1] in self.command_list[parts[0]]:
