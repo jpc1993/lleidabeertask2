@@ -1,4 +1,3 @@
-# Comments must be kept
 import random
 import pprint
 import RPi.GPIO as GPIO
@@ -18,11 +17,10 @@ class Element(object):
     def __init__(self, name = "Element", **kwargs):
         super(Element, self).__init__()
         self.name = name
-        # FIXME: name can have spaces, should correct
         self.slug = custom_slugify(kwargs.get("slug",name))
 
 
-class Sensor(Element):
+class Sensor(Element): 
     """Sensor"""
     def __init__(self, name="GenericSensor", **kwargs):
         super(Sensor, self).__init__(name, **kwargs)
@@ -80,11 +78,10 @@ class TemperatureSensor(Sensor):
     def __init__(self, name="TemperatureSensor", **kwargs):
         super(TemperatureSensor, self).__init__(name, **kwargs)
         self.register_command("/temp", self.send_temp, use_asterisk=True)
-        # TODO: /setalarm <sensor> <value>
         GPIO.setwarnings(False)
         GPIO.setmode(GPIO.BCM)
-        # read the pin off the sensor in the lleidabeer.yaml
-        if "gpio" in kwargs:
+        
+        if "gpio" in kwargs: #here we read the gpio pin
             self.instance = dht11.DHT11(pin = int(kwargs["gpio"]))
             self.result= self.instance.read()
         else:
@@ -116,12 +113,9 @@ class MQTTTemperatureSensor(Sensor):
     def __init__(self, name="MQTTTemperatureSensor", **kwargs):
         super(MQTTTemperatureSensor, self).__init__(name, **kwargs)
         self.register_command("/temp", self.send_temp, use_asterisk=True)
-        # TODO: /setalarm <sensor> <value>
         self.value = -100.0
-        
-        
-        
-        if "topicsensor" in kwargs:
+          
+        if "topicsensor" in kwargs: #here we read the sensor topic in the yaml file 
             
             self.topicsensor=(kwargs['topicsensor'])
             self.broker_address="127.0.0.1"             
@@ -136,29 +130,23 @@ class MQTTTemperatureSensor(Sensor):
     
 
     def _mqtt_on_message(self, client, userdata, message):
-        #print("On Message"+str(message.payload))
-        self.value=(message.payload.decode("utf-8"))
+        self.value=(message.payload.decode("utf-8")) #here we get the value of the mqtt sensor
 
     def _mqtt_setup(self):
         """TemperatureSensor"""
-        #def on_message(client, userdata, message):
-            #self.tempmqtt=(message.payload.decode("utf-8"))
         client = mqtt.Client("sensors") #create new instance
         client.on_message=self._mqtt_on_message #attach function to callback
         client.connect(self.broker_address) #connect to broker
         client.subscribe(self.topicsensor)
         client.loop_start() #start the loop
-        # time.sleep(0.5) # wait
-        # client.loop_stop() #stop the loop
-        
+     
 
     def update_value(self):
-        # self._mqtt_update()
-        # self.value=self.tempmqtt
+        #useless function 
         pass
 
     def send_temp(self, msg):
-        return str(self.name)+" temperature is" + str(self.value)
+        return str(self.name)+" temperature is" + str(self.value) 
 
 
 class CO2Sensor(Sensor):
@@ -202,22 +190,22 @@ class Heater(ActiveElement):
     """Heater"""
     def __init__(self, name="HeaterElement", **kwargs):
         super(Heater, self).__init__(name, **kwargs)
-        self.register_command("/onheater", self.activate, use_asterisk=True)
-        self.register_command("/offheater", self.deactivate, use_asterisk=True)
+        self.register_command("/onheater", self.activate, use_asterisk=True) #command to turn on the heater
+        self.register_command("/offheater", self.deactivate, use_asterisk=True) #command to turn off the heater
         GPIO.setmode(GPIO.BCM)
         
-        if "gpio" in kwargs:
+        if "gpio" in kwargs: #reads the pin output 
             self.pinheater  = int(kwargs["gpio"])         
         else:
             self.instance = None
         
         GPIO.setup(self.pinheater, GPIO.OUT)                      
         
-    def activate(self, msg):
+    def activate(self, msg): #activate heater
             GPIO.output(self.pinheater, True)   
             return("The Heater relay is ON")
 
-    def deactivate(self, msg):
+    def deactivate(self, msg): #deactivate heater
             GPIO.output(self.pinheater, False)
             return("The Heater relay is OFF")
 
@@ -260,10 +248,10 @@ class MQTTHeater(ActiveElement):
     """MQTTHeater"""
     def __init__(self, name="MQTTHeaterElement", **kwargs):
         super(MQTTHeater, self).__init__(name, **kwargs)
-        self.register_command("/onMQTTHeater", self.activate, use_asterisk=True)
-        self.register_command("/offMQTTHeater", self.deactivate, use_asterisk=True)
+        self.register_command("/onMQTTHeater", self.activate, use_asterisk=True) #command to turn on the  mqttheater
+        self.register_command("/offMQTTHeater", self.deactivate, use_asterisk=True) #command to turn off the  mqttheater
                 
-        if "topicreles" in kwargs:
+        if "topicreles" in kwargs: #read the topic in yaml file
             
             self.topicreles=(kwargs["topicreles"])
             self.broker_address="127.0.0.1"             
@@ -289,13 +277,13 @@ class MQTTHeater(ActiveElement):
                               
     def activate(self, msg):
          
-            self.client.publish(self.topicreles,'1')    
+            self.client.publish(self.topicreles,'1')   #send 1 to the esp to turn on Heater
             return("The arduino heater relay is ON")
 
     def deactivate(self, msg):           
             
             self.client.publish(self.topicreles,'2')            
-            return("The arduino heater relay is OFF")
+            return("The arduino heater relay is OFF") #send 1 to the esp to turn off Heater
         
 class MQTTMixer(ActiveElement):
     """MQTTMixer"""
