@@ -1,0 +1,37 @@
+Telegram:
+  Token: 'your token here'
+  Users: your user here
+
+Sensors:
+  Temperature:
+    - 'Wort':
+        type: dht11
+        alarm:  
+        slug: 
+        gpio: 
+    - 'Ambient':
+        type: mqtt
+        topicsensor: 'topic sensor here'
+        alarm: 
+  FlowMeter:
+    - 'Main'
+    - 'Backup'
+  CO2Meter:
+    - 'Fermentation'
+    - 'Environment'
+
+
+ActiveElements:
+  Heater:
+    - 'Heaterwort':
+        gpio: 
+  Mixer:
+    - 'Mixerone':
+       gpio: 
+
+  MQTTMixer:
+    - 'Heaterwortarduino':
+        topicreles: 'topic relays here'
+  MQTTHeater:
+    - 'Mixerarduino':
+        topicreles: 'topic relays here'
