@@ -30,8 +30,8 @@ ActiveElements:
        gpio: 
 
   MQTTMixer:
-    - 'Heaterwortarduino':
+    - 'Mixerarduino':
         topicreles: 'topic relays here'
   MQTTHeater:
-    - 'Mixerarduino':
+    - 'Heaterarduino':
         topicreles: 'topic relays here'
